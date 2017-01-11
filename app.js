@@ -16,9 +16,8 @@ const   campgroundRoutes    = require("./routes/campgrounds"),
         commentRoutes       = require("./routes/comments"),
         authRoutes          = require("./routes/index"); 
 
-//CONNECT TO MONGODB   
-// mongoose.connect("mongodb://localhost/yelp_camp");
-mongoose.connect("mongodb://admin:password@ds159348.mlab.com:59348/campr");
+//CONNECT TO MONGODB
+mongoose.connect(process.env.DATABASEURL);
 mongoose.Promise = global.Promise;
 
 //APP CONFIG

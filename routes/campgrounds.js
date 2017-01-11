@@ -1,8 +1,15 @@
 const   express     = require("express"),
         router      = express.Router(),
+        multer      = require("multer"),
         Campground  = require("../models/campground"),
         middleware  = require("../middleware");
-    
+
+var storage = multer.diskStorage({
+    destination: (req, file, callback) => callback(null, "./public/uploads"),
+    filename: (req, file, callback) => callback(null, Date.now() + file.originalname)
+});
+
+var upload = multer({storage: storage}).single('image');
 
 //INDEX ROUTE
 router.get("/", (req, res) => {
@@ -24,26 +31,31 @@ router.get("/new", middleware.isLoggedIn, (req, res) => {
 
 //CREATE ROUTE
 router.post("/", middleware.isLoggedIn, (req, res) => {
-   var name = req.body.name;
-   var price = req.body.price;
-   var image = req.body.image;
-   var description = req.body.description;
-   var author = {
-       id: req.user._id,
-       username: req.user.username
-   };
-   var newCampground = {name: name, price: price, image: image, description: description, author: author};
-    //   create a new campground and save to db
-    Campground.create(newCampground, (error, addedCampground) => {
-        if(error){
-            console.log(error);
-        }else{
-            console.log("Campground added: " + addedCampground);
-            req.flash("success", "Thanks " + req.user.username + "! " + addedCampground.name + " was added.");
-            res.redirect("/campgrounds");
+    upload(req, res, (err) => {
+        if(err){
+            return req.flash("error", "There was a problem uploading that file");
         }
+           var name = req.body.name;
+           var price = req.body.price;
+           var image = "/uploads/" + req.file.filename;
+           var description = req.body.description;
+           var author = {
+               id: req.user._id,
+               username: req.user.username
+           };
+           var newCampground = {name: name, price: price, image: image, description: description, author: author};
+            //   create a new campground and save to db
+            Campground.create(newCampground, (error, addedCampground) => {
+                if(error){
+                    console.log(error);
+                }else{
+                    console.log("Campground added: " + addedCampground);
+                    req.flash("success", "Thanks " + req.user.username + "! " + addedCampground.name + " was added.");
+                    res.redirect("/campgrounds");
+                }
+            });
+        });
     });
-});
 
 //SHOW ROUTE .. FIND CAMPGROUND WITH PARTICULAR ID
 router.get("/:id", (req, res) => {
