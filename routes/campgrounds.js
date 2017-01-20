@@ -4,10 +4,10 @@ const   express     = require("express"),
         Campground  = require("../models/campground"),
         middleware  = require("../middleware");
 
-var storage = multer.diskStorage({
-    destination: (req, file, callback) => callback(null, "./public/uploads"),
-    filename: (req, file, callback) => callback(null, Date.now() + file.originalname)
-});
+// var storage = multer.diskStorage({
+//     destination: (req, file, callback) => callback(null, "./public/uploads"),
+//     filename: (req, file, callback) => callback(null, Date.now() + file.originalname)
+// });
 
 var upload = multer({storage: storage}).single('image');
 
